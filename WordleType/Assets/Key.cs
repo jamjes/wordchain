@@ -1,46 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Key : MonoBehaviour
 {
-    public TextMeshProUGUI Value { private set; get; }
-    [SerializeField] Image popUp;
-    public int value;
-    bool state = false;
+    [SerializeField] char letter;
+    [SerializeField] KeyCode letterAsKeyCode;
+    [SerializeField] TextMeshProUGUI letterAsUI, popUpLetterAsUI;
+    [SerializeField] int value;
+    [SerializeField] TextMeshProUGUI valueAsUI;
+    [SerializeField] Image popUp, background;
+    [SerializeField] Color mainTextColor, highlightTextColor, mainBackgroundColor, highlightBackgroundColor;
+
 
     public delegate void KeyDelegate(Key target);
     public static event KeyDelegate AddLetter;
 
     private void Start()
     {
-        popUp.gameObject.SetActive(state);
-        Value = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        letterAsUI.text = letter.ToString();
+        popUpLetterAsUI.text = letter.ToString();
+        valueAsUI.text = value.ToString();
+        popUp.gameObject.SetActive(false);
     }
 
-    public void PopUp()
+    private void Update()
     {
-        state = !state;
-
-        if (state == true)
+        if (Input.GetKey(letterAsKeyCode))
         {
-            popUp.gameObject.SetActive(true);
-            Value.color = Color.grey;
+            KeyEnter();
         }
-        else
+        
+        if (Input.GetKeyUp(letterAsKeyCode))
         {
-            popUp.gameObject.SetActive(false);
-            Value.color = Color.black;
+            KeyExit();
         }
     }
 
-    public void AppendLetter()
+    public void KeyEnter()
     {
-        if (AddLetter != null)
-        {
-            AddLetter(this);
-        }
+        background.color = highlightBackgroundColor;
+        letterAsUI.color = highlightTextColor;
+        popUp.gameObject.SetActive(true);
     }
+
+    public void KeyExit()
+    {
+        background.color = mainBackgroundColor;
+        letterAsUI.color = mainTextColor;
+        popUp.gameObject.SetActive(false);
+    }
+
 }

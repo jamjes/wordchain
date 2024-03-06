@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime;
 
 public class Word : MonoBehaviour
 {
@@ -33,9 +29,9 @@ public class Word : MonoBehaviour
         
         if (word.Length < 5)
         {
-            word += target.Value.text;
-            wordDisplay[word.Length - 1].text = target.Value.text;
-            score += target.value;
+            //word += target.GetValue().text;
+            //wordDisplay[word.Length - 1].text = target.GetValue().text;
+            //score += target.value;
         }
         
     }
@@ -46,7 +42,7 @@ public class Word : MonoBehaviour
         {
             word = word.Remove(word.Length - 1, 1);
             wordDisplay[word.Length].text = "";
-            score -= currentKey.value;
+            //score -= currentKey.value;
         }
     }
 
@@ -54,7 +50,6 @@ public class Word : MonoBehaviour
     {
         if (word.Length == 5)
         {
-            Debug.Log($"Player has submitted {word}.");
             word = "";
 
             foreach(TextMeshProUGUI target in wordDisplay)
