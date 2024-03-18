@@ -1,54 +1,21 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class Key : MonoBehaviour
 {
-    [SerializeField] char letter;
-    [SerializeField] KeyCode letterAsKeyCode;
-    [SerializeField] TextMeshProUGUI letterAsUI, popUpLetterAsUI;
-    [SerializeField] int value;
-    [SerializeField] TextMeshProUGUI valueAsUI;
-    [SerializeField] Image popUp, background;
-    [SerializeField] Color mainTextColor, highlightTextColor, mainBackgroundColor, highlightBackgroundColor;
+    [SerializeField] TextMeshProUGUI characterAsUI, valueAsUI;
+    public int Value { get; private set; }
+    public char Character { get; private set; }
 
-
-    public delegate void KeyDelegate(Key target);
-    public static event KeyDelegate AddLetter;
-
-    private void Start()
+    public void SetCharacter(char character)
     {
-        letterAsUI.text = letter.ToString();
-        popUpLetterAsUI.text = letter.ToString();
-        valueAsUI.text = value.ToString();
-        popUp.gameObject.SetActive(false);
+        this.Character = character;
+        characterAsUI.text = Character.ToString();
     }
 
-    private void Update()
+    public void SetValue(int value)
     {
-        if (Input.GetKey(letterAsKeyCode))
-        {
-            KeyEnter();
-        }
-        
-        if (Input.GetKeyUp(letterAsKeyCode))
-        {
-            KeyExit();
-        }
+        this.Value = value;
+        valueAsUI.text = Value.ToString();
     }
-
-    public void KeyEnter()
-    {
-        background.color = highlightBackgroundColor;
-        letterAsUI.color = highlightTextColor;
-        popUp.gameObject.SetActive(true);
-    }
-
-    public void KeyExit()
-    {
-        background.color = mainBackgroundColor;
-        letterAsUI.color = mainTextColor;
-        popUp.gameObject.SetActive(false);
-    }
-
 }
