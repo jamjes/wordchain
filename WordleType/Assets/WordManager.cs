@@ -11,22 +11,32 @@ public class WordManager : MonoBehaviour
     List<Key> keys;
     int pointer = 0;
 
+    public delegate void Word(string word);
+    public static event Word OnWordAccept;
+    public static event Word OnWordComplete;
+
+    public delegate void UXDelegate();
+    public static event UXDelegate OnWordRevert;
+
+
     void OnEnable()
     {
         PlayerController.OnKeyPress += Append;
         PlayerController.OnKeyDelete += Remove;
-        PlayerController.OnSuccess += CheckWinCondition;
-        PlayerController.OnError += CheckWinCondition;
-        PlayerController.OnRepeat += CheckWinCondition;
+
+        WinConditionHandler.OnAccept += CycleLetters;
+        WinConditionHandler.OnDecline += RejectResponse;
+        WinConditionHandler.OnRepeat += CancelScore;
     }
 
     void OnDisable()
     {
         PlayerController.OnKeyPress -= Append;
         PlayerController.OnKeyDelete -= Remove;
-        PlayerController.OnSuccess -= CheckWinCondition;
-        PlayerController.OnError -= CheckWinCondition;
-        PlayerController.OnRepeat -= CheckWinCondition;
+
+        WinConditionHandler.OnAccept -= CycleLetters;
+        WinConditionHandler.OnDecline -= RejectResponse;
+        WinConditionHandler.OnRepeat -= CancelScore;
     }
 
     void Start()
@@ -34,7 +44,7 @@ public class WordManager : MonoBehaviour
         keys = new List<Key>();
         pooler = GetComponent<KeysPooler>();
 
-        char randomLetter = (char)Random.Range(96, 123);
+        char randomLetter = (char)Random.Range(97, 123);
         Append(randomLetter);
     }
 
@@ -62,6 +72,11 @@ public class WordManager : MonoBehaviour
 
         pointer++;
         GameManager.Instance.UpdateGuess(letter);
+
+        if (pointer == 5 && OnWordComplete != null)
+        {
+            OnWordComplete(GameManager.Instance.PlayerGuess);
+        }
     }
 
     void Remove()
@@ -73,25 +88,28 @@ public class WordManager : MonoBehaviour
 
         pointer--;
 
+        if (pointer == 4 && OnWordRevert != null)
+        {
+            OnWordRevert();
+        }
+
         pooler.RequestRemove(keys[keys.Count - 1]);
         keys.RemoveAt(keys.Count - 1);
 
         GameManager.Instance.RemoveFromGuess();
     }
 
-    void CheckWinCondition()
+    void CycleLetters()
     {
-        if (pointer != 5)
+        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! cycling letters to allow new input.");
+
+        if (OnWordRevert != null)
         {
-            return;
+            OnWordRevert();
         }
-        
-        int condition = 0;
 
         Vector3 startPosition;
         Vector3 endPosition;
-
-        #region LerpToEndPosition
 
         for (int counter = 0; counter < keys.Count; counter++)
         {
@@ -102,9 +120,29 @@ public class WordManager : MonoBehaviour
             keys[counter].GetComponent<UIAnimator>().BeginLerp(startPosition, endPosition, .3f);
         }
 
-        #endregion
+        StartCoroutine(AnimationEvent());
+    }
+
+    void CancelScore()
+    {
+        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! setting score to 0 before cycling letters to allow new input.");
+
+        Vector3 startPosition;
+        Vector3 endPosition;
+
+        for (int counter = 0; counter < keys.Count; counter++)
+        {
+            startPosition = keys[counter].GetComponent<RectTransform>().localPosition;
+            endPosition = startPosition - new Vector3(480, 0, 0);
+            keys[counter].GetComponent<UIAnimator>().BeginLerp(startPosition, endPosition, .3f);
+        }
 
         StartCoroutine(AnimationEvent());
+    }
+
+    void RejectResponse()
+    {
+        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! event chain ended!");
     }
 
     IEnumerator AnimationEvent()
@@ -113,7 +151,6 @@ public class WordManager : MonoBehaviour
         
         pointer = 1;
 
-        #region CycleKeys
         for (int counter = 0; counter < 4; counter++)
         {
             Key currentKey = keys[0];
@@ -121,7 +158,6 @@ public class WordManager : MonoBehaviour
             currentKey.gameObject.SetActive(false);
             keys.RemoveAt(0);
         }
-        #endregion
     }
 
     int CalculateCharacterValue(char letter)
