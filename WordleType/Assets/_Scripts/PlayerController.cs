@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
+    #region Attributes
+
     public delegate void ControllerDelegate(char letter);
     public static event ControllerDelegate OnKeyPress;
 
@@ -9,8 +12,17 @@ public class PlayerController : MonoBehaviour
     public static event ConditionDelegate OnKeyDelete;
     public static event ConditionDelegate OnSubmit;
 
+    #endregion
+
+    #region Methods
+
     void Update()
     {
+        if (GameManager.Instance.Run == false)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.A) && OnKeyPress != null) 
         { 
             OnKeyPress('a');
@@ -149,8 +161,10 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return) && OnSubmit != null) 
         {
-            DebugManager.Instance.AppendDebugMessage("Return key triggered! Submit event is called.");
             OnSubmit();
         }
     }
+
+    #endregion
+
 }

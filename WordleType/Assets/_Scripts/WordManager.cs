@@ -1,12 +1,13 @@
-using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
-using UnityEngine.UI;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class WordManager : MonoBehaviour
 {
+
+    #region Attributes
+
     KeysPooler pooler;
     List<Key> keys;
     int pointer = 0;
@@ -14,10 +15,14 @@ public class WordManager : MonoBehaviour
     public delegate void Word(string word);
     public static event Word OnWordAccept;
     public static event Word OnWordComplete;
-
     public delegate void UXDelegate();
     public static event UXDelegate OnWordRevert;
 
+    #endregion
+
+    #region Methods
+
+    #region MonoBehaviour
 
     void OnEnable()
     {
@@ -25,7 +30,6 @@ public class WordManager : MonoBehaviour
         PlayerController.OnKeyDelete += Remove;
 
         WinConditionHandler.OnAccept += CycleLetters;
-        WinConditionHandler.OnDecline += RejectResponse;
         WinConditionHandler.OnRepeat += CancelScore;
     }
 
@@ -35,7 +39,6 @@ public class WordManager : MonoBehaviour
         PlayerController.OnKeyDelete -= Remove;
 
         WinConditionHandler.OnAccept -= CycleLetters;
-        WinConditionHandler.OnDecline -= RejectResponse;
         WinConditionHandler.OnRepeat -= CancelScore;
     }
 
@@ -47,6 +50,8 @@ public class WordManager : MonoBehaviour
         char randomLetter = (char)Random.Range(97, 123);
         Append(randomLetter);
     }
+
+    #endregion
 
     void Append(char letter)
     {
@@ -101,23 +106,15 @@ public class WordManager : MonoBehaviour
 
     void CycleLetters()
     {
-        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! cycling letters to allow new input.");
-
         if (OnWordRevert != null)
         {
             OnWordRevert();
         }
 
-        Vector3 startPosition;
-        Vector3 endPosition;
-
-        for (int counter = 0; counter < keys.Count; counter++)
+        foreach(Key key in keys)
         {
-            GameManager.Instance.AddToScore(keys[counter].Value);
-
-            startPosition = keys[counter].GetComponent<RectTransform>().localPosition;
-            endPosition = startPosition - new Vector3(480, 0, 0);
-            keys[counter].GetComponent<UIAnimator>().BeginLerp(startPosition, endPosition, .3f);
+            GameManager.Instance.AddToScore(key.Value);
+            key.Lerper.BeginLerp();
         }
 
         StartCoroutine(AnimationEvent());
@@ -125,24 +122,12 @@ public class WordManager : MonoBehaviour
 
     void CancelScore()
     {
-        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! setting score to 0 before cycling letters to allow new input.");
-
-        Vector3 startPosition;
-        Vector3 endPosition;
-
-        for (int counter = 0; counter < keys.Count; counter++)
+        foreach (Key key in keys)
         {
-            startPosition = keys[counter].GetComponent<RectTransform>().localPosition;
-            endPosition = startPosition - new Vector3(480, 0, 0);
-            keys[counter].GetComponent<UIAnimator>().BeginLerp(startPosition, endPosition, .3f);
+            key.Lerper.BeginLerp();
         }
 
         StartCoroutine(AnimationEvent());
-    }
-
-    void RejectResponse()
-    {
-        DebugManager.Instance.AppendDebugMessage("Word manager recieved event! event chain ended!");
     }
 
     IEnumerator AnimationEvent()
@@ -200,4 +185,7 @@ public class WordManager : MonoBehaviour
 
         return 0;
     }
+
+    #endregion
+
 }

@@ -1,14 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using System.IO;
-//using System.Linq;
 
 public class WinConditionHandler : MonoBehaviour
 {
-    string acceptedWordsPath;
-    string inputLogPath;
 
+    #region Attributes
 
     private string[] AcceptedWords = {
         "aback","abase","abate","abbey","abbot","abhor","abide","abled","abode","abort","about","above","abuse","abyss","acorn ","acrid","actor","acute","adage","adapt","adept","admin","admit","adobe","adopt","adore","adorn","adult","affix","afire","afoot","afoul","after","again","agape","agate","agent","agile","aging","aglow","agony","agree","ahead","aider","aisle","alarm","album","alert","algae","alibi","alien","align","alike","alive","allay","alley","allot","allow","alloy","aloft","alone","along","aloof","aloud","alpha","altar","alter","amass","amaze","amber","amble","amend","amiss","amity","among","ample","amply","amuse","angel","anger","angle","angry","angst","anime","ankle","annex","annoy","annul","anode","antic","anvil","aorta","apart","aphid","aping","apnea","apple","apply","apron","aptly","arbor","ardor","arena","argue","arise","armor","aroma","arose","array","arrow","arson","artsy","ascot","ashen","aside","askew","assay","asset","atoll","atone","attic","audio","audit","augur","aunty","avail","avert","avian","avoid","await","awake","award","aware","awash","awful","awoke","axial","axiom","axion","azure",
@@ -36,18 +33,20 @@ public class WinConditionHandler : MonoBehaviour
         "wacky","wafer","wager","wagon","waist","waive","waltz","warty","waste","watch","water","waver","waxen","weary","weave","wedge","weedy","weigh","weird","welch","welsh","whack","whale","wharf","wheat","wheel","whelp","where","which","whiff","while","whine","whiny","whirl","whisk","white","whole","whoop","whose","widen","wider","widow","width","wield","wight","willy","wimpy","wince","winch","windy","wiser","wispy","witch","witty","woken","woman","women","woody","wooer","wooly","woozy","wordy","world","worry","worse","worst","worth","would","wound","woven","wrack","wrath","wreak","wreck","wrest","wring","wrist","write","wrong","wrote","wrung","wryly",
         "xenon", "xerox", "xylem",
         "yacht","yearn","yeast","yield","young","youth",
-        "zebra","zesty","zonal"
-        };
-
+        "zebra","zesty","zonal" };
     private List<string> InputLog;
 
     public delegate void ConditionDelegate();
     public static event ConditionDelegate OnAccept;
-    public static event ConditionDelegate OnDecline;
     public static event ConditionDelegate OnRepeat;
-
     public delegate void UXDelegate(Color color);
     public static event UXDelegate OnHintUpdate;
+
+    #endregion
+
+    #region Methods
+
+    #region MonoBehaviour
 
     private void OnEnable()
     {
@@ -60,56 +59,35 @@ public class WinConditionHandler : MonoBehaviour
     {
         PlayerController.OnSubmit -= Evaluate;
         WordManager.OnWordComplete -= OutcomeHint;
-        //File.Delete(inputLogPath);
     }
+
+    private void Start()
+    {
+        InputLog = new List<string>();
+    }
+
+    #endregion
 
     void Evaluate()
     {
-        DebugManager.Instance.AppendDebugMessage("WinConditionHandler recieved event! Checking word against acceptance conditions.");
-
         string word = GameManager.Instance.PlayerGuess;
         
         if (!IsUnique(word) && OnRepeat != null)
         {
-            DebugManager.Instance.AppendDebugMessage("Word already exists! Calling repeat event.");
+            Debug.Log("Repeated Word");
             OnRepeat();
             return;
         }
 
         if (isRealWord(word) && OnAccept != null)
         {
-            DebugManager.Instance.AppendDebugMessage("Word is acceptable. Calling win event.");
             Append(word);
             OnAccept();
         }
-        else if (!isRealWord(word) && OnDecline != null)
-        {
-            DebugManager.Instance.AppendDebugMessage("Word is not recognised. Calling reject event.");
-            OnDecline();
-        }
-        else
-        {
-            DebugManager.Instance.AppendDebugMessage("Failed to recognise word status. Problem with events or string path.");
-        }
-    }
-
-    private void Start()
-    {
-        InputLog = new List<string>();
-
-        /*acceptedWordsPath = Application.dataPath + "/" + "acceptedWords" + ".txt";
-
-        inputLogPath = Application.dataPath + "/" + "inputLog" + ".txt";
-        if (!File.Exists(inputLogPath))
-        {
-            File.WriteAllText(inputLogPath, "");
-        }*/
     }
 
     bool isRealWord(string targetWord)
     {
-        //List<string> acceptedWordsAsList = File.ReadAllLines(acceptedWordsPath).ToList();
-
         foreach (string word in AcceptedWords)
         {
             if (word == targetWord)
@@ -123,8 +101,6 @@ public class WinConditionHandler : MonoBehaviour
     
     bool IsUnique(string targetWord)
     {
-        //List<string> inputsAsList = File.ReadAllLines(inputLogPath).ToList();
-
         foreach(string word in InputLog)
         {
             if (word == targetWord)
@@ -138,7 +114,6 @@ public class WinConditionHandler : MonoBehaviour
 
     void Append(string word)
     {
-        //File.AppendAllText(inputLogPath, word + "\n");
         InputLog.Add(word);
     }
 
@@ -162,6 +137,8 @@ public class WinConditionHandler : MonoBehaviour
         }
 
         OnHintUpdate(Color.red);
-        OnDecline();
     }
+
+    #endregion
+
 }

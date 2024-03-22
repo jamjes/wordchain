@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class KeysPooler : MonoBehaviour
 {
+
+    #region Attributes
+
     public Key[] allKeys;
+
+    #endregion
+
+    #region Methods
 
     public Key RequestAppend()
     {
@@ -24,4 +31,7 @@ public class KeysPooler : MonoBehaviour
     {
         key.gameObject.SetActive(false);
     }
+
+    #endregion
+
 }
