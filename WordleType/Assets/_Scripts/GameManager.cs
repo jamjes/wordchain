@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     public string PlayerGuess { private set; get; }
     public bool Run { get; private set; }
 
+    public delegate void ManagerDelegate();
+    public static event ManagerDelegate OnInitialise;
+
     #endregion
 
     #region Methods
@@ -50,6 +53,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (OnInitialise != null)
+        {
+            OnInitialise();
+        }
+
         Run = false;
         levelScore = new Score(scoreLabel, 0);
         levelTimer = new Timer(timerLabel, levelDuration);

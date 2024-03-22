@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
     #region Attributes
 
     public delegate void ControllerDelegate(char letter);

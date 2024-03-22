@@ -5,16 +5,12 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 
 public class WordManager : MonoBehaviour
 {
-
     #region Attributes
 
     KeysPooler pooler;
     List<Key> keys;
     int pointer = 0;
 
-    public delegate void Word(string word);
-    public static event Word OnWordAccept;
-    public static event Word OnWordComplete;
     public delegate void UXDelegate();
     public static event UXDelegate OnWordRevert;
 
@@ -28,21 +24,23 @@ public class WordManager : MonoBehaviour
     {
         PlayerController.OnKeyPress += Append;
         PlayerController.OnKeyDelete += Remove;
-
         WinConditionHandler.OnAccept += CycleLetters;
         WinConditionHandler.OnRepeat += CancelScore;
+        GameManager.OnInitialise += Init;
     }
 
     void OnDisable()
     {
         PlayerController.OnKeyPress -= Append;
         PlayerController.OnKeyDelete -= Remove;
-
         WinConditionHandler.OnAccept -= CycleLetters;
         WinConditionHandler.OnRepeat -= CancelScore;
+        GameManager.OnInitialise -= Init;
     }
 
-    void Start()
+    #endregion
+
+    void Init()
     {
         keys = new List<Key>();
         pooler = GetComponent<KeysPooler>();
@@ -50,8 +48,6 @@ public class WordManager : MonoBehaviour
         char randomLetter = (char)Random.Range(97, 123);
         Append(randomLetter);
     }
-
-    #endregion
 
     void Append(char letter)
     {
@@ -77,11 +73,6 @@ public class WordManager : MonoBehaviour
 
         pointer++;
         GameManager.Instance.UpdateGuess(letter);
-
-        if (pointer == 5 && OnWordComplete != null)
-        {
-            OnWordComplete(GameManager.Instance.PlayerGuess);
-        }
     }
 
     void Remove()

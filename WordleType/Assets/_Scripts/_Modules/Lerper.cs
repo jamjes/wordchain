@@ -2,11 +2,17 @@ using UnityEngine;
 
 public class Lerper
 {
+    #region Attributes
+
     float elapsedTime = 0;
     float duration = .3f;
     Vector3 startPosition, endPosition;
     RectTransform rectTransform;
     public bool Run { get; private set; }
+
+    #endregion
+
+    #region Methods
 
     public Lerper(float duration, RectTransform rectTransform)
     {
@@ -39,4 +45,7 @@ public class Lerper
         endPosition = startPosition - new Vector3(480, 0, 0);
         Run = true;
     }
+
+    #endregion
+
 }

@@ -4,7 +4,6 @@ using TMPro;
 
 public class Key : MonoBehaviour
 {
-
     #region Attributes
 
     [SerializeField] TextMeshProUGUI characterAsUI, valueAsUI;
@@ -22,21 +21,21 @@ public class Key : MonoBehaviour
 
     #region MonoBehaviour
 
-    void Start()
-    {
-        Lerper = new Lerper(.3f, GetComponent<RectTransform>());
-        isLerping = false;
-    }
-
     void Update()
     {
-        if (Lerper.Run)
+        if (Lerper != null && Lerper.Run)
         {
             Lerper.Tick();
         }
     }
 
     #endregion
+
+    void Start()
+    {
+        Lerper = new Lerper(.3f, GetComponent<RectTransform>());
+        isLerping = false;
+    }
 
     public void SetCharacter(char character)
     {

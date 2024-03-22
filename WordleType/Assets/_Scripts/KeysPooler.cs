@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class KeysPooler : MonoBehaviour
 {
-
     #region Attributes
 
     public Key[] allKeys;

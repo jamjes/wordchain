@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class WinConditionHandler : MonoBehaviour
 {
-
     #region Attributes
 
-    private string[] AcceptedWords = {
+    string[] AcceptedWords = {
         "aback","abase","abate","abbey","abbot","abhor","abide","abled","abode","abort","about","above","abuse","abyss","acorn ","acrid","actor","acute","adage","adapt","adept","admin","admit","adobe","adopt","adore","adorn","adult","affix","afire","afoot","afoul","after","again","agape","agate","agent","agile","aging","aglow","agony","agree","ahead","aider","aisle","alarm","album","alert","algae","alibi","alien","align","alike","alive","allay","alley","allot","allow","alloy","aloft","alone","along","aloof","aloud","alpha","altar","alter","amass","amaze","amber","amble","amend","amiss","amity","among","ample","amply","amuse","angel","anger","angle","angry","angst","anime","ankle","annex","annoy","annul","anode","antic","anvil","aorta","apart","aphid","aping","apnea","apple","apply","apron","aptly","arbor","ardor","arena","argue","arise","armor","aroma","arose","array","arrow","arson","artsy","ascot","ashen","aside","askew","assay","asset","atoll","atone","attic","audio","audit","augur","aunty","avail","avert","avian","avoid","await","awake","award","aware","awash","awful","awoke","axial","axiom","axion","azure",
         "bacon","badge","badly","bagel","baggy","baker","baler","balmy","banal","banjo","barge","baron","basal","basic","basil","basin","basis","baste","batch","bathe","baton","batty","bawdy","bayou","beach","beady","beard","beast","beech","beefy","befit","began","begat","beget","begin","begun","being","belch","belie","belle","belly","below","bench","beret","berry","berth","beset","betel","bevel","bezel","bible","bicep","biddy","bigot","bilge","billy","binge","bingo","biome","birch","birth","bison","bitty","black","blade","blame","bland","blank","blare","blast","blaze","bleak","bleat","bleed","bleep","blend","bless","blimp","blind","blink","bliss","blitz","bloat","block","bloke","blond","blood","bloom","blown","bluer","bluff","blunt","blurb","blurt","blush","board","boast","bobby","boney","bongo","bonus","booby","boost","booth","booty","booze","boozy","borax","borne","bosom","bossy","botch","bough","boule","bound","bowel","boxer","brace","braid","brain","brake","brand","brash","brass","brave","bravo","brawl","brawn","bread","break","breed","briar","bribe","brick","bride","brief","brine","bring","brink","briny","brisk","broad","broil","broke","brood","brook","broom","broth","brown","brunt","brush","brute","buddy","budge","buggy","bugle","build","built","bulge","bulky","bully","bunch","bunny","burly","burnt","burst","bused","bushy","butch","butte","buxom","buyer","bylaw",
         "cabal","cabby","cabin","cable","cacao","cache","cacti","caddy","cadet","cagey","cairn","camel","cameo","canal","candy","canny","canoe","canon","caper","caput","carat","cargo","carol","carry","carve","caste","catch","cater","catty","caulk","cause","cavil","cease","cedar","cello","chafe","chaff","chain","chair","chalk","champ","chant","chaos","chard","charm","chart","chase","chasm","cheap","cheat","check","cheek","cheer","chess","chest","chick","chide","chief","child","chili","chill","chime","china","chirp","chock","choir","choke","chord","chore","chose","chuck","chump","chunk","churn","chute","cider","cigar","cinch","circa","civic","civil","clack","claim","clamp","clang","clank","clash","clasp","class","clean","clear","cleat","cleft","clerk","click","cliff","climb","cling","clink","cloak","clock","clone","close","cloth","cloud","clout","clove","clown","cluck","clued","clump","clung","coach","coast","cobra","cocoa","colon","color","comet","comfy","comic","comma","conch","condo","conic","copse","coral","corer","corny","couch","cough","could","count","coupe","court","coven","cover","covet","covey","cower","coyly","crack","craft","cramp","crane","crank","crash","crass","crate","crave","crawl","craze","crazy","creak","cream","credo","creed","creek","creep","creme","crepe","crept","cress","crest","crick","cried","crier","crime","crimp","crisp","croak","crock","crone","crony","crook","cross","croup","crowd","crown","crude","cruel","crumb","crump","crush","crust","crypt","cubic","cumin","curio","curly","curry","curse","curve","curvy","cutie","cyber","cycle","cynic",
@@ -34,13 +33,11 @@ public class WinConditionHandler : MonoBehaviour
         "xenon", "xerox", "xylem",
         "yacht","yearn","yeast","yield","young","youth",
         "zebra","zesty","zonal" };
-    private List<string> InputLog;
+    List<string> InputLog;
 
     public delegate void ConditionDelegate();
     public static event ConditionDelegate OnAccept;
     public static event ConditionDelegate OnRepeat;
-    public delegate void UXDelegate(Color color);
-    public static event UXDelegate OnHintUpdate;
 
     #endregion
 
@@ -48,25 +45,24 @@ public class WinConditionHandler : MonoBehaviour
 
     #region MonoBehaviour
 
-    private void OnEnable()
+    void OnEnable()
     {
         PlayerController.OnSubmit += Evaluate;
-        WordManager.OnWordComplete += OutcomeHint;
-
+        GameManager.OnInitialise += Init;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         PlayerController.OnSubmit -= Evaluate;
-        WordManager.OnWordComplete -= OutcomeHint;
-    }
-
-    private void Start()
-    {
-        InputLog = new List<string>();
+        GameManager.OnInitialise -= Init;
     }
 
     #endregion
+
+    void Init()
+    {
+        InputLog = new List<string>();
+    }
 
     void Evaluate()
     {
@@ -74,19 +70,18 @@ public class WinConditionHandler : MonoBehaviour
         
         if (!IsUnique(word) && OnRepeat != null)
         {
-            Debug.Log("Repeated Word");
             OnRepeat();
             return;
         }
 
-        if (isRealWord(word) && OnAccept != null)
+        if (IsRealWord(word) && OnAccept != null)
         {
             Append(word);
             OnAccept();
         }
     }
 
-    bool isRealWord(string targetWord)
+    bool IsRealWord(string targetWord)
     {
         foreach (string word in AcceptedWords)
         {
@@ -115,28 +110,6 @@ public class WinConditionHandler : MonoBehaviour
     void Append(string word)
     {
         InputLog.Add(word);
-    }
-
-    void OutcomeHint(string word)
-    {
-        if (OnHintUpdate == null)
-        {
-            return;
-        }
-        
-        if (!IsUnique(word))
-        {
-            OnHintUpdate(Color.yellow);
-            return;
-        }
-
-        if (isRealWord(word))
-        {
-            OnHintUpdate(Color.green);
-            return;
-        }
-
-        OnHintUpdate(Color.red);
     }
 
     #endregion

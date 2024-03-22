@@ -3,7 +3,6 @@ using TMPro;
 
 public class Timer
 {
-
     #region Attributes
 
     public float TimeRemaining { get; private set; }
