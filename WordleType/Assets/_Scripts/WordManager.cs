@@ -10,6 +10,7 @@ public class WordManager : MonoBehaviour
     KeysPooler pooler;
     List<Key> keys;
     int pointer = 0;
+    [SerializeField] Vector3 TileSpawnLocation;
 
     public delegate void UXDelegate();
     public static event UXDelegate OnWordRevert;
@@ -59,13 +60,16 @@ public class WordManager : MonoBehaviour
         Key newKey = pooler.RequestAppend();
         newKey.SetCharacter(letter);
         newKey.SetValue(CalculateCharacterValue(letter));
-        
 
-        Vector3 targetLocation = new Vector3(-240, 0, 0);
-        
+        Vector3 targetLocation;
+
         if (keys.Count != 0)
         {
             targetLocation = keys[keys.Count - 1].GetComponent<RectTransform>().localPosition + new Vector3(120, 0, 0);
+        }
+        else
+        {
+            targetLocation = TileSpawnLocation;
         }
 
         newKey.GetComponent<RectTransform>().localPosition = targetLocation;
